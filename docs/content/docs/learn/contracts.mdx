@@ -1,0 +1,194 @@
+---
+title: Contracts
+description: Understanding ink! smart contract development in inkathon
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { File, Folder, Files } from 'fumadocs-ui/components/files'
+import { Steps, Step } from 'fumadocs-ui/components/steps'
+
+## Tech Stack
+
+| Package                 | Description                                     | Scope     |
+| ----------------------- | ----------------------------------------------- | --------- |
+| 🥟 **Bun**              | Performant workspace & script manager           | Contracts |
+| 🚢 **Cargo**            | Rust package manager                            | Contracts |
+| 🦑 **ink!**             | Rust-based smart contract language for Polkadot | Contracts |
+| ⚙️ **TypeScript**       | Type-safe programming language                  | Scripts   |
+| 🛠️ **Biome**            | Modern Linter & Formatter for TypeScript        | Scripts   |
+| ⛓️ **Papi**             | Contract Type Generation                        | Scripts   |
+| 💥 **Pop CLI**          | Setup environment and manage smart contracts    | Scripts   |
+| 📦 **`cargo contract`** | Build smart contracts                           | Scripts   |
+| 📦 **`ink-node`**       | Local ink! node for development                 | Scripts   |
+
+## File Structure
+
+<Files>
+  <Folder name="contracts" defaultOpen>
+    <Folder name="src" defaultOpen>
+      <Folder name="flipper">
+        <File name="lib.rs" />
+        <File name="Cargo.toml" />
+      </Folder>
+      <Folder name="your-contract">
+        <File name="lib.rs" />
+        <File name="Cargo.toml" />
+      </Folder>
+    </Folder>
+    <Folder name="deployments">
+      <Folder name="flipper">
+        <File name="flipper.contract" />
+        <File name="flipper.json" />
+        <File name="flipper.polkavm" />
+        <File name="dev.ts" />
+        <File name="pop.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="scripts">
+      <File name="deploy.ts" />
+    </Folder>
+    <Folder name=".papi">
+      <Folder name="descriptors">
+        <File name="package.json" />
+      </Folder>
+    </Folder>
+    <File name="package.json" />
+    <File name="build.sh" />
+    <File name="codegen.sh" />
+    <File name="deploy.sh" />
+    <File name="Cargo.toml" />
+  </Folder>
+</Files>
+
+## Available Commands
+
+<Callout title="Setup Environment">
+  Make sure to follow our [contract setup guide](/guides/contract-development) first, before running
+  any commands.
+</Callout>
+
+Execute from the contracts directory or root with `-F contracts`:
+
+```bash
+# Development
+bun run node         # Start local ink-node
+bun run build        # Build all contracts
+bun run codegen      # Generate TypeScript types
+bun run deploy       # Deploy contracts
+
+# Code Quality (Scripts)
+bun run lint         # Run linting checks
+bun run lint:fix     # Auto-fix issues
+bun run typecheck    # TypeScript checking
+
+# Maintenance
+bun run clean        # Remove build artifacts
+```
+
+## Build System
+
+The build script (`build.sh`) which runs on `bun run build` automatically:
+
+1. Detects all contracts in `/src`
+2. Builds each with `cargo contract build --release`
+3. Copies artifacts to `/deployments` (under version control)
+4. Organizes by contract name
+
+### Output Structure
+
+<Files>
+  <Folder name="deployments" defaultOpen>
+    <Folder name="<contract-name>" defaultOpen>
+      <File name="<contract-name>.contract" />
+      <File name="<contract-name>.json" />
+      <File name="<contract-name>.polkavm" />
+    </Folder>
+  </Folder>
+</Files>
+
+## Type Generation
+
+1. **Build contracts** to generate metadata
+2. **Run `bun run codegen`** to create TypeScript descriptors with Papi under `contracts/.papi/` (partially under version control)
+3. **Import types** in frontend code
+
+```typescript title="Frontend"
+import { contracts } from '@polkadot-api/descriptors'
+
+// Create fully-typed contract SDK
+const sdk = createInkSdk(client)
+const contract = sdk.getContract(contracts.flipper, flipper.evmAddresses[chain])
+```
+
+## Deployment Management
+
+The highly customizable `deploy.ts` script handles:
+
+- Account & chain management (defaults to `//Alice`)
+- Contract instantiation
+- Address export to TypeScript files
+
+### Environment
+
+Depending on the `CHAIN` variable (default: `dev`), the script will read secret environment variables (i.e. `ACCOUNT_URI`) from the `.env.<chain>` file dynamically (e.g. `.env.dev` or `.env.pop`).
+
+This is useful for deploying to different networks from different accounts.
+
+<Callout title="Deployment Gas Fees">
+  When setting `ACCOUNT_URI` to a custom account while using the local development node, make sure
+  to fund your account first. – The most convenient way to do this is using the [Polkadot-JS
+  UI](https://polkadot.js.org/apps/#/explorer). Connect it to your local node and send some funds
+  from `Alice` via the **Accounts** tab.
+</Callout>
+
+### Output Structure
+
+Deployments create TypeScript files for each chain co-located with the contract metadata:
+
+<Files>
+  <Folder name="deployments" defaultOpen>
+    <Folder name="<contract-name>" defaultOpen>
+      <File name="<chain-name>.ts" />
+    </Folder>
+  </Folder>
+</Files>
+
+### Exported Addresses
+
+```typescript title="deployments/<contract-name>/<chain-name>.ts"
+export const evmAddress = '0x...'
+export const ss58Address = '5...'
+```
+
+```typescript title="Frontend"
+import { evmAddress, ss58Address } from "contracts/deployments/<contract-name>/<chain-name>"
+
+// Create fully-typed contract SDK & instance
+const sdk = createInkSdk(client)
+const contract = sdk.getContract(contracts.<contract-name>, evmAddress)
+```
+
+## Learn More
+
+<Cards>
+  <Card
+    title="Project Structure"
+    description="Learn more about the project structure"
+    href="/learn/structure"
+  />
+  <Card
+    title="Frontend Architecture"
+    description="Learn more about the Next.js frontend"
+    href="/learn/frontend"
+  />
+  <Card
+    title="Command Cheat Sheet"
+    description="Learn all commands for the perfect workflow"
+    href="/resources/commands"
+  />
+  <Card
+    title="Setup Contract Development"
+    description="Setup your local ink! development environment"
+    href="/guides/contract-development"
+  />
+</Cards>

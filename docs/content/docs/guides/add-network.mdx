@@ -1,0 +1,137 @@
+---
+title: Add a Custom Network
+description: Integrate new Polkadot chains into your inkathon project
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { File, Folder, Files } from 'fumadocs-ui/components/files'
+
+## Prerequisites
+
+- Working inkathon project
+- [Set up](/guides/contract-development) environment for contract development
+- Access to the network's RPC endpoint
+- Account with funds on the target network (for deployments)
+
+<Callout title="ink! v6 Support">
+  Make sure the respective network supports pallet-revive which is mandatory to support ink! v6
+  contracts. Find currently supported networks in the [use.ink
+  documentation](https://use.ink/docs/v6/where-to-deploy).
+</Callout>
+
+## Step-by-Step Guide
+
+<Steps>
+
+<Step>
+
+### Generate Type Definitions
+
+Generate type definitions for the new network using Papi:
+
+```bash
+# From the contracts directory
+cd contracts
+
+# Add the network (replace with your network details)
+bunx papi add -w <network-wss-endpoint> <network-name>
+
+# Example for Pop Network
+bunx papi add -w wss://rpc1.paseo.popnetwork.xyz pop
+```
+
+This creates type definitions in `contracts/.papi/descriptors/` that enable type-safe interactions.
+
+</Step>
+
+<Step>
+
+### Deploy Contracts
+
+Now you can deploy the contract to your new network:
+
+```bash
+CHAIN=<network-name> bun run deploy
+```
+
+<Callout title="Deployer Account" type="warning">By default, the deployer account is `//Alice` who is pre-funded on local nodes. You can overwrite this by either passing an `ACCOUNT_URI` variable or defining an `.env.<chain>` file (see [environment](/learn/contracts#environment)).</Callout>
+
+</Step>
+
+<Step>
+
+### Configure Frontend
+
+Update the frontend to connect to your new network and import the freshly deployed contract:
+
+```tsx title="frontend/src/lib/reactive-dot/config.ts"
+import { newChain } from '@polkadot-api/descriptors' // [!code ++]
+// …
+
+export const config = defineConfig({
+  chains: {
+    pop: {
+      descriptor: pop,
+      provider: getWsProvider('wss://rpc1.paseo.popnetwork.xyz'),
+    },
+    passethub: {
+      descriptor: passethub,
+      provider: getWsProvider('wss://testnet-passet-hub.polkadot.io'),
+    },
+    newChain: {
+      descriptor: newChain, // [!code ++]
+      provider: getWsProvider('TODO'), // [!code ++]
+    },
+  },
+  // …
+})
+```
+
+```tsx title="frontend/src/lib/inkathon/deployments.ts"
+import * as flipperNewChain from 'contracts/deployments/flipper/newChain' // [!code ++]
+// …
+
+export const flipper = {
+  contract: contracts.flipper,
+  evmAddresses: {
+    pop: flipperPop.evmAddress,
+    passethub: flipperPassethub.evmAddress,
+    newChain: flipperNewChain.evmAddress, // [!code ++]
+  },
+  ss58Addresses: {
+    pop: flipperPop.ss58Address,
+    passethub: flipperPassethub.ss58Address,
+    newChain: flipperNewChain.ss58Address, // [!code ++]
+  },
+}
+```
+
+</Step>
+
+</Steps>
+
+## Learn More
+
+<Cards>
+  <Card
+    title="Project Structure"
+    description="Learn more about the project structure"
+    href="/learn/contracts"
+  />
+  <Card
+    title="Command Cheat Sheet"
+    description="Learn all commands for the perfect workflow"
+    href="/resources/commands"
+  />
+  <Card
+    title="Contracts Architecture"
+    description="Learn more about the ink! smart contracts"
+    href="/learn/contracts"
+  />
+  <Card
+    title="Frontend Architecture"
+    description="Learn more about the Next.js frontend"
+    href="/learn/frontend"
+  />
+</Cards>

@@ -1,0 +1,70 @@
+---
+title: Quickstart
+description: Kickstart your ink! hackathon projects and production dApps.
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion'
+import { Steps, Step } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import Image from 'next/image'
+
+<Image
+  src="https://inkathon.xyz/inkathon-readme-banner.png"
+  alt="inkathon Banner"
+  width={2000}
+  height={750}
+/>
+
+Welcome to **inkathon v6** – the next generation full-stack boilerplate for ink! smart contracts running on PolkaVM. Powered by Papi, ReactiveDOT, Pop CLI, and more.
+
+Get up and running in seconds:
+
+<Steps>
+<Step>
+
+### Install Prerequisites
+
+- Node.js v20+ (recommended via [nvm](https://github.com/nvm-sh/nvm))
+- [Bun](https://bun.sh/) package manager
+
+</Step>
+
+<Step>
+
+### Create Your Project
+
+```npm
+npx create-inkathon-app@latest
+```
+
+</Step>
+
+<Step>
+
+### Start Frontend
+
+```bash
+cd <project>
+
+bun run dev
+```
+
+Congrats 🎉 Now open `localhost:3000` in your browser to play with your first local ink! dApp.
+
+</Step>
+</Steps>
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Setup Contract Development"
+    description="Setup your ink! development environment"
+    href="/guides/contract-development"
+  />
+  <Card
+    title="Project Structure"
+    description="Learn about the monorepo architecture and stack"
+    href="/learn/structure"
+  />
+</Cards>

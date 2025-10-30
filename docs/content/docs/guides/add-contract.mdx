@@ -1,0 +1,209 @@
+---
+title: Add a New Contract
+description: Create and integrate new ink! smart contracts in your project
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+## Prerequisites
+
+- Working inkathon project
+- [Set up](/guides/contract-development) environment for contract development
+- Local node running (optional)
+
+## Step-by-Step Guide
+
+<Steps>
+
+<Step>
+
+### Create Contract
+
+Use Pop CLI to scaffold a new contract in the `contracts/src` directory:
+
+```bash
+cd contracts/src
+
+# Create a new contract with a template
+pop new contract <contract-name> --template <template-name>
+
+# Example: Create an ERC20 token
+pop new contract my_token --template erc20
+```
+
+<Callout title="Available Templates">
+View all available contract templates:
+
+```bash
+pop new contract --template
+```
+
+Common templates include `erc20`, `erc721`, `erc1155`, `dns`, `multisig`, and more.
+
+</Callout>
+
+</Step>
+
+<Step>
+
+### Update Cargo Configuration
+
+Add your new contract to the workspace members in `contracts/Cargo.toml`:
+
+```toml title="contracts/Cargo.toml"
+[workspace]
+members = [
+    "src/flipper",
+    "src/<contract-name>", # [!code ++]
+]
+```
+
+</Step>
+
+<Step>
+
+### Build & Generate Types
+
+Build the contract and generate TypeScript types:
+
+```bash
+cd contracts
+
+# Build all contracts
+bun run build
+
+# Generate TypeScript types with Papi
+bun run codegen
+```
+
+This creates:
+
+- Contract artifacts in `/contracts/deployments/<contract-name>/`
+- TypeScript types accessible via `@polkadot-api/descriptors`
+
+</Step>
+
+<Step>
+
+### Deploy Contract
+
+Deploy your contract to the desired chain:
+
+<Tabs items={['Local Dev', 'Pop Network', 'Custom Chain']}>
+<Tab value="Local Dev">
+```bash
+# Deploy to local dev chain (default)
+CHAIN=dev bun run deploy
+```
+</Tab>
+<Tab value="Pop Network">
+```bash
+# Deploy to Pop Network 
+CHAIN=pop bun run deploy
+````
+</Tab>
+<Tab value="Custom Chain">
+```bash
+# Deploy to any configured chain
+CHAIN=<chain-name> bun run deploy
+````
+
+</Tab>
+</Tabs>
+
+Deployment addresses are exported to `/contracts/deployments/<contract-name>/<chain>.ts`
+
+</Step>
+
+<Step>
+
+### Configure Frontend
+
+Import and configure your new contract in the frontend:
+
+```tsx title="frontend/src/lib/inkathon/deployments.ts"
+import { contracts } from '@polkadot-api/descriptors'
+import * as newContractDev from 'contracts/deployments/newContract/dev'
+import * as newContractPop from 'contracts/deployments/newContract/pop'
+
+// Add your contract configuration
+export const newContract = {
+  contract: contracts.newContract,
+  evmAddresses: {
+    dev: newContractDev.evmAddress,
+    pop: newContractPop.evmAddress,
+  },
+  ss58Addresses: {
+    dev: newContractDev.ss58Address,
+    pop: newContractPop.ss58Address,
+  },
+}
+
+export const deployments = {
+  newContract,
+}
+```
+
+</Step>
+
+<Step>
+
+### Use Contract in Frontend
+
+Create components to interact with your contract:
+
+```tsx title="frontend/src/components/web3/contract-card.tsx"
+'use client'
+
+import { createInkSdk } from '@polkadot-api/sdk-ink'
+import { deployments } from '@/lib/inkathon/deployments'
+import { useChainId, useClient } from '@reactive-dot/react'
+
+export function ContractCard() {
+  const chainId = useChainId()
+  const client = useClient()
+
+  const queryContract = useCallback(async () => {
+    if (!chainId) return
+
+    const { contract, evmAddresses } = deployments.newContract;
+
+    // Create SDK & contract instance
+    const sdk = createInkSdk(client)
+    const contract = sdk.getContract(contract, evmAddresses[chainId])
+
+    // Interact with your contract
+    // ...
+  }, [client, chainId])
+}
+```
+
+</Step>
+
+</Steps>
+
+## Learn More
+
+<Cards>
+  <Card
+    title="Contract Architecture"
+    description="Deep dive into ink! smart contracts"
+    href="/learn/contracts"
+  />
+  <Card
+    title="Frontend Integration"
+    description="Learn about React components and hooks"
+    href="/learn/frontend"
+  />
+  <Card
+    title="Add Custom Network"
+    description="Deploy to additional blockchain networks"
+    href="/guides/add-network"
+  />
+  <Card
+    title="Command Reference"
+    description="All available commands at a glance"
+    href="/resources/commands"
+  />
+</Cards>

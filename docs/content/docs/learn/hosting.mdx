@@ -1,0 +1,33 @@
+---
+title: Hosting
+description: Deploy your inkathon app with self-hosting or Vercel
+---
+
+## Self-hosting
+
+The inkathon boilerplate treats self-hosting as a first-class citizen. It comes with a state-of-the-art Dockerfile configuration for Next.js self-hosting. There's even a self-hosted version of inkathon.xyz running at [https://inkathon.scio.xyz](https://inkathon.scio.xyz).
+
+Build and run the Docker image locally:
+
+```bash
+# Execute from the root directory
+docker build -t inkathon .
+docker run -p 3000:3000 inkathon
+```
+
+## Vercel
+
+The boilerplate is ready to be deployed to Vercel using the `vercel.json` configuration file at the root of the project.
+
+### Deploy to Vercel
+
+1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
+2. Import your project to [Vercel](https://vercel.com/new)
+3. Configure environment variables (if needed)
+4. Deploy with one click
+
+The `vercel.json` configuration handles all necessary settings for the monorepo structure.
+
+### Alternatives
+
+If you are looking for an alternative managed hosting provider highly optimized for Next.js applications, check out the [OpenNext](https://opennext.js.org/) project.
