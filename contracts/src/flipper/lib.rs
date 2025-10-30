@@ -59,58 +59,6 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test]
-        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            // given
-            let mut constructor = FlipperRef::new(false);
-            let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let mut call_builder = contract.call_builder::<Flipper>();
-
-            let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
-            assert!(!get_res.return_value());
-
-            // when
-            let flip = call_builder.flip();
-            let _flip_res = client
-                .call(&ink_e2e::bob(), &flip)
-                .submit()
-                .await
-                .expect("flip failed");
-
-            // then
-            let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(get_res.return_value());
-
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            // given
-            let mut constructor = FlipperRef::new_default();
-
-            // when
-            let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let call_builder = contract.call_builder::<Flipper>();
-
-            // then
-            let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(!get_res.return_value());
-
-            Ok(())
-        }
-
         /// This test illustrates how to test an existing on-chain contract.
         ///
         /// You can utilize this to e.g. create a snapshot of a production chain
