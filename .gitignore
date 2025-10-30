@@ -14,6 +14,7 @@
 dist
 *.tsbuildinfo
 .turbo
+target
 
 # Environment
 .env
