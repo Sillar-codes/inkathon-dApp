@@ -10,3 +10,23 @@ export const siteBanner = {
   height: 630,
   alt: "inkathon Boilerplate",
 }
+
+export const siteMetadata: Metadata = {
+  title: siteTitle,
+  description: siteDescription,
+  metadataBase: new URL("https://inkathon.xyz"),
+  openGraph: {
+    images: [siteBanner],
+  },
+  twitter: {
+    images: [siteBanner],
+    description: siteDescription,
+    card: "summary_large_image",
+    site: "@scio_xyz",
+    creator: "@scio_xyz",
+  },
+  authors: [
+    { name: "Scio Labs", url: "https://scio.xyz" },
+    { name: "Dennis Zoma", url: "https://zoma.dev" },
+  ],
+}
